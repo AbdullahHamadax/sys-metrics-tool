@@ -6,12 +6,12 @@ Develop a comprehensive system monitoring solution that collects, analyzes, and 
 
 
 ## Monitoring Targets 
-• CPU performance and temperature.
-• GPU utilization and health.
-• Disk usage and SMART status.
-• Memory consumption.
-• Network interface statistics.
-• System load metrics.
+- CPU performance and temperature.
+- GPU utilization and health.
+- Disk usage and SMART status.
+- Memory consumption.
+- Network interface statistics.
+- System load metrics.
 
 ### Technologies used:
 1. Bash: Scripts for system metrics collection.
