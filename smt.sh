@@ -1,14 +1,21 @@
 #!/bin/bash
-message="Welcome to our Laptop analysis system
-----------------------------------------"
-optionMessage="Pick an option to display!!
-----------------------------
+message="----------------------------------
+Welcome to our computer analysis system
+----------------------------------"
+optionMessage="Please pick an option to display!!
+----------------------------------
 1- CPU performance and temperature
+----------------------------------
 2- GPU utilization and health
+----------------------------------
 3- Disk usage and SMART status
+----------------------------------
 4- Memory consumption
+----------------------------------
 5- Network interface statistics
+----------------------------------
 6- System load metrics
+----------------------------------
 0- Exit"
 
 echo -e "$message"
@@ -26,8 +33,7 @@ while [ "$loop" = true ]; do
         1)
             clear
             echo "CPU Performance and Temperature"
-            echo "-------------------------------"
-            hddtemp 
+            echo "-------------------------------" 
             echo -e "
             
             
@@ -92,7 +98,7 @@ while [ "$loop" = true ]; do
             ;;
         *)
             clear
-            echo "Invalid option. Please try again."
+            echo "Invalid option. Please choose an option from [1-6]."
             ;;
     esac
 done
