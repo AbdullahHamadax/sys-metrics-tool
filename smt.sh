@@ -2,7 +2,7 @@
 message="----------------------------------
 Welcome to our computer analysis system
 ----------------------------------"
-optionMessage="Please pick an option to display!!
+optionMessage="\nPlease pick an option to display!!
 ----------------------------------
 1- CPU performance and temperature
 ----------------------------------
@@ -21,6 +21,113 @@ optionMessage="Please pick an option to display!!
 echo -e "$message"
 loop=true
 
+checkCPU(){
+    while true; do
+        clear
+        echo "CPU Performance and Temperature"
+        echo "-------------------------------"
+        mpstat
+        sensors | grep 'Core'
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 1
+    done
+}
+
+checkGPU(){
+    vendor="$(sudo lshw -C display | grep vendor | head -1)"
+
+    while true; do
+        clear
+        echo "GPU Utilization and Health"
+        echo "--------------------------"
+        if [[ $vendor =~ "NVIDIA" ]]; then
+            nvidia-smi -q -d clock | head -14 | tail -5
+            nvidia-smi -q -d temperature | head -18 | tail -9
+            nvidia-smi -q -d utilization | head -16 | tail -7
+        else
+            radeontop
+        fi
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 2
+    done
+}
+
+checkDiskUsage(){
+    while true; do
+        clear
+        echo "Disk Usage and SMART Status"
+        echo "---------------------------"
+        df -h
+        sudo smartctl -H /dev/nvme0n1 | tail -3
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 2
+    done
+}
+
+checkMemory(){
+    while true; do
+        clear
+        echo "Memory Consumption"
+        echo "------------------"
+        free -h
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 2
+    done
+}
+
+checkNetworkInterface(){
+     while true; do
+        clear
+        echo "Network Interface Statistics"
+        echo "----------------------------"
+        netstat -i
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 2
+    done
+}
+
+
+checkSystemLoadMetrics(){
+     while true; do
+        clear
+        echo "System Load Metrics"
+        echo "-------------------"
+        uptime
+        echo -e "\nPress 'p' to go back to the main menu"
+        read -t 1 -n 1 input
+        if [[ $input == "p" ]]; then
+            clear
+            break
+        fi
+        sleep 2
+    done
+}
+
 while [ "$loop" = true ]; do
     echo -e "$optionMessage"
     read -p "Enter your option: " option
@@ -32,52 +139,23 @@ while [ "$loop" = true ]; do
             ;;
         1)
             clear
-            echo "CPU Performance and Temperature"
-            echo "-------------------------------" 
-            echo -e "
-            
-            
-            
-            
-            "
+            checkCPU
             ;;
         2)
             clear
-            echo "GPU Utilization and Health"
-            echo "--------------------------"
-            echo -e "
-            
-            
-            
-            
-            "
+            checkGPU
             ;;
         3)
             clear
-            echo "Disk Usage and SMART Status"
-            echo "---------------------------"
-            echo -e "
-            
-            
-            
-            
-            "
+            checkDiskUsage
             ;;
         4)
             clear
-            echo "Memory Consumption"
-            echo "------------------"
-            echo -e "
-            
-            
-            
-            
-            "
+            checkMemory
             ;;
-        5)  
+        5)
             clear
-            echo "Network Interface Statistics"
-            echo "----------------------------"
+            checkNetworkInterface
             echo -e "
             
             
@@ -87,8 +165,7 @@ while [ "$loop" = true ]; do
             ;;
         6)
             clear
-            echo "System Load Metrics"
-            echo "-------------------"
+            checkSystemLoadMetrics
             echo -e "
             
             
