@@ -1,6 +1,6 @@
 #!/bin/bash
 message="----------------------------------
-Welcome to our computer analysis system
+Welcome to our system metrics tool
 ----------------------------------"
 optionMessage="\nPlease pick an option to display!!
 ----------------------------------
@@ -18,8 +18,30 @@ optionMessage="\nPlease pick an option to display!!
 ----------------------------------
 0- Exit"
 
-echo -e "$message"
 loop=true
+
+
+avgTemp() {
+    temperatures=$(sensors | grep 'Core' | awk '{print $3}' | sed 's/+//g' | sed 's/°C//g')
+
+    sum=0
+    count=0
+
+    for temp in $temperatures; do
+        if [[ ! "$temp" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            continue
+        fi
+
+        sum=$(echo "$sum + $temp" | bc)
+        count=$((count + 1))
+    done
+
+    avg_temp=$(echo "scale=2; $sum / $count" | bc)
+    echo "Average CPU Temperature: $avg_temp°C"
+}
+
+
+
 
 checkCPU(){
     while true; do
@@ -27,7 +49,8 @@ checkCPU(){
         echo "CPU Performance and Temperature"
         echo "-------------------------------"
         mpstat
-        sensors | grep 'Core'
+        sensors | grep "Core"
+        avgTemp
         echo -e "\nPress 'p' to go back to the main menu"
         read -t 1 -n 1 input
         if [[ $input == "p" ]]; then
@@ -40,17 +63,18 @@ checkCPU(){
 
 checkGPU(){
     vendor="$(sudo lshw -C display | grep vendor | head -1)"
-
     while true; do
         clear
         echo "GPU Utilization and Health"
         echo "--------------------------"
+        echo "$vendor"
         if [[ $vendor =~ "NVIDIA" ]]; then
             nvidia-smi -q -d clock | head -14 | tail -5
-            nvidia-smi -q -d temperature | head -18 | tail -9
-            nvidia-smi -q -d utilization | head -16 | tail -7
-        else
+            nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.free,temperature.gpu --format=csv
+        elif [[ $vendor =~ "AMD" ]]; then
             radeontop
+
+        else intel_gpu_top
         fi
         echo -e "\nPress 'p' to go back to the main menu"
         read -t 1 -n 1 input
@@ -63,12 +87,33 @@ checkGPU(){
 }
 
 checkDiskUsage(){
+    clear
+    echo "Disk Usage and SMART Status"
+        echo "---------------------------"
+        number_of_disks=$(($(df -h | wc -l)-1))
+        echo "Disks available on machine: "
+        disks=($(df -h | awk '{print $1}' | tail -$number_of_disks))
+        for i in "${!disks[@]}"; do
+            echo $(($i+1))-${disks[$i]}
+        done
+        echo "---------------------------"
+        echo "Please choose a disk (1-$number_of_disks)"
+        read chosen_disk_number
+        chosen_disk=${disks[$(($chosen_disk_number-1))]}
+        
+
     while true; do
         clear
-        echo "Disk Usage and SMART Status"
-        echo "---------------------------"
-        df -h
-        sudo smartctl -H /dev/nvme0n1 | tail -3
+        df -h | grep -m 1 "$chosen_disk" | awk '{print "Disk: " $1 "\nUsed: " $3 " / " $2 "\nAvailable: " $4 "\nUse%: " $5}'
+
+        SMART_STATUS=$(sudo smartctl -H "$chosen_disk" | grep -i 'health' | awk '{print $6}')
+
+        if [[ "$SMART_STATUS" == "PASSED" ]]; then
+            echo "SMART Status: Your drive is perfectly fine :D"
+        else
+            echo "SMART Status: Issues detected"
+        fi
+        
         echo -e "\nPress 'p' to go back to the main menu"
         read -t 1 -n 1 input
         if [[ $input == "p" ]]; then
@@ -78,6 +123,7 @@ checkDiskUsage(){
         sleep 2
     done
 }
+
 
 checkMemory(){
     while true; do
@@ -115,20 +161,32 @@ checkNetworkInterface(){
 checkSystemLoadMetrics(){
      while true; do
         clear
-        echo "System Load Metrics"
-        echo "-------------------"
-        uptime
-        echo -e "\nPress 'p' to go back to the main menu"
+        echo -e "Press 'p' to go back to the main menu"
         read -t 1 -n 1 input
         if [[ $input == "p" ]]; then
             clear
             break
         fi
-        sleep 2
+        echo "System Load Metrics"
+        echo "-------------------"
+        load_average="average access (1 min, 5 min, 15 mins): "
+        space=" "
+        load_average+=$(uptime | awk '{print $8}')
+        load_average+=$space
+        load_average+=$(uptime | awk '{print $9}')
+        load_average+=$space
+        load_average+=$(uptime | awk '{print $10}')
+        load_average+=$space
+        echo -e $load_average
+        dstat -c -d -n -m 1 1 
+        sleep 1
     done
 }
 
 while [ "$loop" = true ]; do
+    clear
+    tput cup 0 0 
+    echo -e "$message"
     echo -e "$optionMessage"
     read -p "Enter your option: " option
     case $option in
