@@ -28,7 +28,7 @@ login() {
     zenity --info --text="Login successful!" --width=300
 }
 
-# login
+login
 DIR="sys_logs"
 DIRHTML="smt_html"
 
