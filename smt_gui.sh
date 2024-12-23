@@ -14,6 +14,8 @@ login() {
 
     if [[ $? -ne 0 ]]; then
         zenity --error --text="Login cancelled... exiting..." --width=300
+        # paplay /home/abood/Downloads/Outro.mp3
+
         exit 1
     fi
 
@@ -22,15 +24,21 @@ login() {
 
     if [[ "$user" != "$username" || "$pass" != "$password" ]]; then
         zenity --error --text="Invalid username or password" --width=300
+        # paplay /home/abood/Downloads/sus.mp3
+
         exit 1
     fi
 
     zenity --info --text="Login successful!" --width=300
+
+    # paplay /home/abood/Downloads/mousa.mp3
+
 }
 
 login
 DIR="sys_logs"
 DIRHTML="smt_html"
+MUSICDIR="sound_effects"
 
 if [ ! -d "$DIR" ]; then
     mkdir $DIR
@@ -40,8 +48,13 @@ if [ ! -d "$DIRHTML" ]; then
     mkdir $DIRHTML
 fi
 
+if [ ! -d "$MUSICDIR" ]; then
+    mkdir $MUSICDIR
+fi
+
 path="$(pwd)/$DIR"
 pathHTML="$(pwd)/$DIRHTML"
+MUSICPATH="$(pwd)/$MUSICDIR"
 
 loop=true
 
@@ -125,7 +138,7 @@ checkCritTemp() {
     avg_temp=$1
 
     if (($(echo "$avg_temp >= 70" | bc -l))); then
-        paplay /home/abood/Downloads/windows-error-sound-effect-35894.mp3
+        # paplay /home/abood/Downloads/windows-error-sound-effect-35894.mp3
         zenity --warning --text="Average CPU Temperature is high ($avg_temp°C)!" --title="Be aware cpu is on fire🔥🔥🔥🔥"
     fi
 }
@@ -170,6 +183,8 @@ checkCPU() {
 
     if [[ $? -eq 1 ]]; then
         openCPUHTML
+        # else
+        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -215,9 +230,9 @@ checkGPU() {
     tail -f "$TEMP_FILE" | zenity --text-info --title="GPU Utilization and Health" --width=600 --height=410 --auto-scroll --cancel-label="Generate HTML report" --ok-label="Go back"
 
     if [[ $? -eq 1 ]]; then
-        echo ${gpu_temperature_plots[*]}
-
-        openGPUHTML "${gpu_temperature_plots[@]}"
+        openGPUHTML
+        # else
+        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -272,6 +287,8 @@ checkDiskUsage() {
 
         if [[ $? -eq 0 ]]; then
             break
+            # else
+            # paplay /home/abood/Downloads/ah_shit.mp3
         fi
     done
 }
@@ -299,6 +316,8 @@ checkMemory() {
 
     if [[ $? -eq 1 ]]; then
         openMemoryHTML
+        # else
+        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -359,6 +378,8 @@ checkNetworkInterface() {
 
     if [[ $? -eq 1 ]]; then
         openNetworkHTML
+        # else
+        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -393,6 +414,8 @@ checkSystemLoadMetrics() {
 
     if [[ $? -eq 1 ]]; then
         openSystemLoadHTML
+        # else
+        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -410,34 +433,34 @@ openCPUHTML() {
     graph_image_path=$(python3 generate_temperature_graph.py "$temperature_data")
 
     echo "<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>CPU Report</title>
-    <script src=\"https://cdn.tailwindcss.com\"></script>
-</head>
-<body class=\"flex items-center flex-col min-h-screen bg-sky-700\">
-    <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
-        CPU - HTML REPORT
-    </h1>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>CPU Report</title>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
+    </head>
+    <body class=\"flex items-center flex-col min-h-screen bg-sky-700\">
+        <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
+            CPU - HTML REPORT
+        </h1>
 
-    <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
-        <div class=\"graph w-full\">
-            <h2 class=\"text-xl font-bold text-center\">CPU Performance and Temperature</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-            $cpu_data
-            </pre>
+        <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
+            <div class=\"graph w-full\">
+                <h2 class=\"text-xl font-bold text-center\">CPU Performance and Temperature</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+                $cpu_data
+                </pre>
+            </div>
+
+            <div class=\"graph w-full mt-5\">
+                <h2 class=\"text-xl font-bold text-center\">CPU Temperature Graph</h2>
+                <img src=\"$(pwd)/$graph_image_path\" alt=\"CPU Temperature Graph\" class=\"w-full mt-5\" />
+            </div>
+
         </div>
-
-        <div class=\"graph w-full mt-5\">
-            <h2 class=\"text-xl font-bold text-center\">CPU Temperature Graph</h2>
-            <img src=\"$(pwd)/$graph_image_path\" alt=\"CPU Temperature Graph\" class=\"w-full mt-5\" />
-        </div>
-
-    </div>
-</body>
-</html>" >"$pathHTML/cpu.html"
+    </body>
+    </html>" >"$pathHTML/cpu.html"
 
     xdg-open "$pathHTML/cpu.html"
 
@@ -466,47 +489,47 @@ openGPUHTML() {
     gpu_utilization=$(echo -e "$gpu_data" | tail -n 2)
 
     echo "<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>GPU Utilization Report</title>
-    <script src=\"https://cdn.tailwindcss.com\"></script>
-</head>
-<body class=\"flex items-center flex-col min-h-screen bg-purple-700\">
-    <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
-        GPU Utilization and Health - HTML REPORT
-    </h1>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>GPU Utilization Report</title>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
+    </head>
+    <body class=\"flex items-center flex-col min-h-screen bg-purple-700\">
+        <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
+            GPU Utilization and Health - HTML REPORT
+        </h1>
 
-    <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
-        <div class=\"stats w-full\">
-            <h2 class=\"text-xl font-bold text-center\">GPU Vendor</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-$vendor
-            </pre>
-        </div>
+        <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
+            <div class=\"stats w-full\">
+                <h2 class=\"text-xl font-bold text-center\">GPU Vendor</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    $vendor
+                </pre>
+            </div>
 
-        <div class=\"utilization w-full mt-5\">
-            <h2 class=\"text-xl font-bold text-center\">GPU Information</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-$gpu_info
-            </pre>
-        </div>
+            <div class=\"utilization w-full mt-5\">
+                <h2 class=\"text-xl font-bold text-center\">GPU Information</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    $gpu_info
+                </pre>
+            </div>
 
-        <div class=\"graph w-full mt-5\">
-            <h2 class=\"text-xl font-bold text-center\">GPU Utilization Graph</h2>
-            <img src=\"$(pwd)/$graph_image_path\" alt=\"GPU Utilization Graph\" class=\"w-full mt-5\" />
-        </div>
+            <div class=\"graph w-full mt-5\">
+                <h2 class=\"text-xl font-bold text-center\">GPU Utilization Graph</h2>
+                <img src=\"$(pwd)/$graph_image_path\" alt=\"GPU Utilization Graph\" class=\"w-full mt-5\" />
+            </div>
 
-        <div class=\"utilization w-full mt-5\">
-            <h2 class=\"text-xl font-bold text-center\">GPU Utilization</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-$gpu_utilization
-            </pre>
+            <div class=\"utilization w-full mt-5\">
+                <h2 class=\"text-xl font-bold text-center\">GPU Utilization</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    $gpu_utilization
+                </pre>
+            </div>
         </div>
-    </div>
-</body>
-</html>" >"$pathHTML/gpu.html"
+    </body>
+    </html>" >"$pathHTML/gpu.html"
 
     xdg-open "$pathHTML/gpu.html"
 }
@@ -518,32 +541,32 @@ openMemoryHTML() {
     free_memory=$(echo "$memory_data" | awk 'NR==2 {print $4}')
 
     echo "<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>Memory Report</title>
-    <script src=\"https://cdn.tailwindcss.com\"></script>
-</head>
-<body class=\"flex items-center flex-col min-h-screen bg-green-700\">
-    <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
-        Memory - HTML REPORT
-    </h1>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>Memory Report</title>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
+    </head>
+    <body class=\"flex items-center flex-col min-h-screen bg-green-700\">
+        <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
+            Memory - HTML REPORT
+        </h1>
 
-    <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
-        <div class=\"graph w-full\">
-            <h2 class=\"text-xl font-bold text-center\">Memory Consumption</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-Total Memory: ${total_memory}MB
-Used Memory: ${used_memory}MB
-Free Memory: ${free_memory}MB
-            </pre>
+        <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
+            <div class=\"graph w-full\">
+                <h2 class=\"text-xl font-bold text-center\">Memory Consumption</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    Total Memory: ${total_memory}MB
+    Used Memory: ${used_memory}MB
+    Free Memory: ${free_memory}MB
+                </pre>
+            </div>
+
+
         </div>
-
-
-    </div>
-</body>
-</html>" >"$pathHTML/memory.html"
+    </body>
+    </html>" >"$pathHTML/memory.html"
 
     xdg-open "$pathHTML/memory.html"
 }
@@ -555,34 +578,34 @@ openNetworkHTML() {
     tx_errors=$(cat /sys/class/net/$chosen_interface/statistics/tx_errors)
 
     echo "<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>Network Interface Report</title>
-    <script src=\"https://cdn.tailwindcss.com\"></script>
-</head>
-<body class=\"flex items-center flex-col min-h-screen bg-purple-700\">
-    <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
-        Network Interface - HTML REPORT
-    </h1>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>Network Interface Report</title>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
+    </head>
+    <body class=\"flex items-center flex-col min-h-screen bg-purple-700\">
+        <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
+            Network Interface - HTML REPORT
+        </h1>
 
-    <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
-        <div class=\"stats w-full\">
-            <h2 class=\"text-xl font-bold text-center\">Interface: $chosen_interface</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-Received Bytes: $rx_bytes B
-Transmitted Bytes: $tx_bytes B
-Received Errors: $rx_errors
-Transmitted Errors: $tx_errors
-            </pre>
+        <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
+            <div class=\"stats w-full\">
+                <h2 class=\"text-xl font-bold text-center\">Interface: $chosen_interface</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    Received Bytes: $rx_bytes B
+    Transmitted Bytes: $tx_bytes B
+    Received Errors: $rx_errors
+    Transmitted Errors: $tx_errors
+                </pre>
+            </div>
+
+
+
         </div>
-
-
-
-    </div>
-</body>
-</html>" >"$pathHTML/network.html"
+    </body>
+    </html>" >"$pathHTML/network.html"
 
     xdg-open "$pathHTML/network.html"
 }
@@ -594,37 +617,37 @@ openSystemLoadHTML() {
     load_average_data=$(uptime | awk '{print $8, $9, $10}' | tr ',' ' ')
 
     echo "<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>System Load Metrics Report</title>
-    <script src=\"https://cdn.tailwindcss.com\"></script>
-</head>
-<body class=\"flex items-center flex-col min-h-screen bg-green-700\">
-    <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
-        System Load Metrics - HTML REPORT
-    </h1>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>System Load Metrics Report</title>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
+    </head>
+    <body class=\"flex items-center flex-col min-h-screen bg-green-700\">
+        <h1 class=\"text-3xl text-white font-bold underline text-center mt-5\">
+            System Load Metrics - HTML REPORT
+        </h1>
 
-    <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
-        <div class=\"stats w-full\">
-            <h2 class=\"text-xl font-bold text-center\">Load Averages</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-1-minute: ${load_averages%% *}, 5-minute: $(echo $load_averages | awk '{print $2}'), 15-minute: ${load_averages##* }
-            </pre>
+        <div class=\"flex h-full w-[700px] bg-white border-4 p-7 flex-wrap gap-5 mt-10\">
+            <div class=\"stats w-full\">
+                <h2 class=\"text-xl font-bold text-center\">Load Averages</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    1-minute: ${load_averages%% *}, 5-minute: $(echo $load_averages | awk '{print $2}'), 15-minute: ${load_averages##* }
+                </pre>
+            </div>
+
+
+            <div class=\"system-data w-full mt-5\">
+                <h2 class=\"text-xl font-bold text-center\">System Load Metrics</h2>
+                <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
+    $system_load_data
+                </pre>
+            </div>
+
         </div>
-
-
-        <div class=\"system-data w-full mt-5\">
-            <h2 class=\"text-xl font-bold text-center\">System Load Metrics</h2>
-            <pre class=\"whitespace-pre-wrap bg-gray-100 p-3 mt-5 text-sm\">
-$system_load_data
-            </pre>
-        </div>
-
-    </div>
-</body>
-</html>" >"$pathHTML/load.html"
+    </body>
+    </html>" >"$pathHTML/load.html"
 
     xdg-open "$pathHTML/load.html"
 }
@@ -666,6 +689,8 @@ while [ "$loop" = true ]; do
     *)
         if [ -z "$option" ]; then
             zenity --info --text="You are exiting our precious tool😔 \nthanks for using it ❤️" --width=300
+            # paplay /home/abood/Downloads/Outro.mp3
+
             loop=false
         else
             zenity --error --text="Invalid option. Please select a valid one."
