@@ -17,4 +17,4 @@ Develop a comprehensive system monitoring solution that collects, analyzes, and 
 1. Bash: Scripts for system metrics collection.
 2. HTML: For reporting interfaces.
 3. Zenity: GUI for user interaction in Bash.
-4. Docker: Containerization for consistent and portable deployment.
+4. Docker: Containerization for consistent and portable deployment. ( WIP )
