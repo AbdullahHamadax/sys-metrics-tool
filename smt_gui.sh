@@ -14,8 +14,6 @@ login() {
 
     if [[ $? -ne 0 ]]; then
         zenity --error --text="Login cancelled... exiting..." --width=300
-        # paplay /home/abood/Downloads/Outro.mp3
-
         exit 1
     fi
 
@@ -24,14 +22,11 @@ login() {
 
     if [[ "$user" != "$username" || "$pass" != "$password" ]]; then
         zenity --error --text="Invalid username or password" --width=300
-        # paplay /home/abood/Downloads/sus.mp3
-
         exit 1
     fi
 
     zenity --info --text="Login successful!" --width=300
 
-    # paplay /home/abood/Downloads/mousa.mp3
 
 }
 
@@ -183,8 +178,6 @@ checkCPU() {
 
     if [[ $? -eq 1 ]]; then
         openCPUHTML
-        # else
-        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -231,8 +224,6 @@ checkGPU() {
 
     if [[ $? -eq 1 ]]; then
         openGPUHTML
-        # else
-        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -287,8 +278,6 @@ checkDiskUsage() {
 
         if [[ $? -eq 0 ]]; then
             break
-            # else
-            # paplay /home/abood/Downloads/ah_shit.mp3
         fi
     done
 }
@@ -316,8 +305,6 @@ checkMemory() {
 
     if [[ $? -eq 1 ]]; then
         openMemoryHTML
-        # else
-        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -378,8 +365,6 @@ checkNetworkInterface() {
 
     if [[ $? -eq 1 ]]; then
         openNetworkHTML
-        # else
-        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -414,8 +399,6 @@ checkSystemLoadMetrics() {
 
     if [[ $? -eq 1 ]]; then
         openSystemLoadHTML
-        # else
-        # paplay /home/abood/Downloads/ah_shit.mp3
     fi
 
     kill $DATA_PROCESS_PID
@@ -689,7 +672,6 @@ while [ "$loop" = true ]; do
     *)
         if [ -z "$option" ]; then
             zenity --info --text="You are exiting our precious tool😔 \nthanks for using it ❤️" --width=300
-            # paplay /home/abood/Downloads/Outro.mp3
 
             loop=false
         else
