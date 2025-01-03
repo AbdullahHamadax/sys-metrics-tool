@@ -1,5 +1,3 @@
-Here’s an updated version of the **System Metrics Tool** document including a "How to Run the Project" section:
-
 ---
 
 # System Metrics Tool
