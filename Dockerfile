@@ -18,7 +18,7 @@ RUN apt update && apt install -y \
 
 WORKDIR /app
 
-COPY smt_gui.sh .
+COPY . .
 
 RUN chmod +x smt_gui.sh
 
